@@ -3,7 +3,7 @@ import torch
 
 from transformers.utils import logging
 
-from falcontune.data import make_prompt
+from falcontune.data import make_prompt_io
 from falcontune.model import load_model
 from falcontune.model.lora import load_adapter
 from falcontune.model.utils import model_to_half
@@ -61,9 +61,7 @@ def generate(args):
     prompt, instruction, input_ = args.prompt, args.instruction, args.input
 
     while True:
-        prompt = make_prompt(instruction, input_=input_) \
-            if args.instruction else prompt
-
+        prompt = make_prompt_io(instruction)
         input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
 
         start_time = time.time()
@@ -88,8 +86,8 @@ def generate(args):
         if args.instruction:
             output = format_output(output)
 
-        print('\n\n\n')
-        print(output)
+        print("---------")
+        print(f"Prompt: {prompt}\nOutput:{output}")
         print(f'\nTook {round(end_time - start_time, 3)} s\n\n\n\n')
 
         if not args.interactive:
