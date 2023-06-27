@@ -165,16 +165,19 @@ class TrainSAD(TrainDataBase):
 
     # Auxiliary methods
     def generate_prompt(self, data_point, **kwargs):
-        return make_prompt(
-            data_point["instruction"],
-            data_point["input"],
-            data_point["output"]
-        )
+        #return make_prompt(
+        #    data_point["instruction"],
+        #    data_point["input"],
+        #    data_point["output"]
+        #)
+        return make_prompt_io(data_point["input"], data_point["output"])
 
     def generate_and_tokenize_prompt(self, data_point, **kwargs):
         prompt = self.generate_prompt(data_point, **kwargs)
         return self.tokenize(prompt, **kwargs)
 
+def make_prompt_io(i, o=""):
+    return f"{i}{o}"
 
 def make_prompt(instruction, input_, output=""):
     return "{0}\n\n{1}\n{2}\n\n{3}\n{4}\n\n{5}\n{6}".format(
