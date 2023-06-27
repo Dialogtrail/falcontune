@@ -2,6 +2,7 @@ import time
 import torch
 
 from transformers.utils import logging
+from transformers import StoppingCriteria, StoppingCriteriaList
 
 from falcontune.data import make_prompt_io
 from falcontune.model import load_model
@@ -36,7 +37,8 @@ class AMPWrapper:
 
 
 def format_output(raw_output):
-    return raw_output.split("### Response:")[1].strip()
+    #return raw_output.split("### Response:")[1].strip()
+    return raw_output
 
 
 def generate(args):
@@ -60,6 +62,9 @@ def generate(args):
 
     prompt, instruction, input_ = args.prompt, args.instruction, args.input
 
+    stopping_criteria = StoppingCriteriaList(
+        [StoppingCriteriaSub(stops=[tokenizer.eos_token_id])])
+
     while True:
         prompt = make_prompt_io(instruction)
         input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
@@ -77,7 +82,8 @@ def generate(args):
                 eos_token_id=tokenizer.eos_token_id,
                 bos_token_id=tokenizer.bos_token_id,
                 pad_token_id=tokenizer.eos_token_id,
-                num_beams=args.num_beams
+                num_beams=args.num_beams,
+                stopping_criteria=stopping_criteria
             )
         end_time = time.time()
 
